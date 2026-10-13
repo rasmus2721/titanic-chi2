@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Titanic · Chi-i-anden-test</title>
+<style>
+:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#18273b;background:#f5f7fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1010px;margin:auto;padding:28px 18px 60px}header{background:linear-gradient(110deg,#172a47,#245579);color:white;padding:34px 24px;border-radius:20px;margin-bottom:18px}header h1{font-size:clamp(25px,4vw,35px);margin:6px 0}header p{opacity:.88;margin:0}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.75}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:white;border:1px solid #e0e6ed;border-radius:15px;padding:21px;margin-bottom:16px;box-shadow:0 2px 13px #17283c08}.card h2{font-size:18px;margin:0 0 13px}.sub{color:#5e6c7c;font-size:13px;line-height:1.5}.upload{display:block;border:2px dashed #9fb6c9;border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:#f8fbfd}.upload:hover{border-color:#2277a2}.upload strong{display:block;margin-bottom:5px}.upload input{display:none}button,select,input[type=number]{font:inherit;border:1px solid #cbd7e1;background:white;border-radius:9px;padding:10px;max-width:100%}select{width:100%}button{cursor:pointer}button.primary{background:#166388;color:white;border-color:#166388;font-weight:600}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8ed2ed}label.caption{display:block;color:#4d5b6c;font-size:13px;margin:12px 0 6px}#columnMapping{display:none}.choices{display:flex;gap:8px;flex-wrap:wrap}.choices button.active{background:#d9eef8;border-color:#2e87ad;font-weight:650}.status{font-size:13px;margin-top:10px;color:#536477}.error{color:#ad3434!important}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.metric{border-radius:12px;background:#edf4f9;padding:14px}.metric small{display:block;color:#64788a;margin-bottom:7px}.metric strong{font-size:22px;overflow-wrap:anywhere}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:14px 0}th,td{border-bottom:1px solid #e1e8ef;padding:11px 12px;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{background:#f1f5f8}tfoot{font-weight:700;background:#f1f5f8}.pill{display:inline-block;padding:7px 11px;border-radius:30px;background:#e9eef4;font-weight:650;font-size:13px}.pill.positive{background:#e3f5ec;color:#175c37}.pill.negative{background:#fff0dd;color:#82500d}.bars{display:grid;gap:12px;margin:18px 0}.barrow{display:grid;grid-template-columns:minmax(90px,170px) 1fr 60px;gap:10px;align-items:center;font-size:13px}.track{height:20px;border-radius:6px;background:#e8eef2;overflow:hidden}.fill{height:100%;background:#167d9a}.note{background:#f4f8fb;border-left:4px solid #3088ad;padding:12px 14px;border-radius:6px;font-size:13px;line-height:1.5}.hide{display:none!important}details{margin-top:15px}summary{cursor:pointer;font-weight:600}.footer{font-size:12px;color:#687789}input[type=number]{width:95px}.inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}@media(max-width:690px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.barrow{grid-template-columns:90px 1fr 50px}.wrap{padding:12px}header{padding:25px 18px}}
+</style>
+</head><body><main class="wrap"><header><div class="eyebrow">Statistik · Vibe coding</div><h1>Titanic: Test af uafhængighed</h1><p>Undersøg to spørgsmål: (1) Er overlevelse afhængig af rejseklasse? (2) Er aldersgruppe afhængig af rejseklasse?</p></header>
+<div class="layout"><section class="card"><h2>1. Data</h2><label class="upload">📂 <strong>Vælg Excel- eller CSV-fil</strong><span class="sub">.xlsx, .xls eller .csv · Behandles i din browser</span><input id="file" type="file" accept=".csv,.txt,.xlsx,.xls" /></label><div id="status" class="status">Ingen fil indlæst endnu.</div><p><button id="demo" type="button">Prøv med illustrative eksempeldata</button></p><div id="columnMapping"><label class="caption" for="survcol">Kolonne for overlevelse (0 / 1)</label><select id="survcol"></select><label class="caption" for="classcol">Kolonne for klasse (1 / 2 / 3)</label><select id="classcol"></select><label class="caption" for="agecol">Kolonne for alder (år)</label><select id="agecol"></select></div></section>
+<section class="card"><h2>2. Vælg undersøgelse</h2><div class="sub">Vælg hvilket par af variable der skal undersøges.</div><label class="caption">χ²-test for uafhængighed</label><div class="choices" id="choices"><button class="active" data-mode="class">1. Overlevelse × klasse</button><button data-mode="age">2. Alder × klasse</button></div><label class="caption" for="alpha">Signifikansniveau (α)</label><select id="alpha"><option value="0.05">5 % (standard)</option><option value="0.01">1 %</option><option value="0.10">10 %</option></select><p class="sub">Aldersgrupper: 0–19 år, 20–39 år og 40+ år. Manglende alder udelades fra alderstesten.</p></section></div>
+<section class="card"><h2>3. Resultat</h2><div id="empty" class="sub">Indlæs en fil eller vælg eksempeldata for at beregne testen.</div><div id="results" class="hide"><div id="warnings" class="note hide"></div><div class="metrics"><div class="metric"><small>Observationer (n)</small><strong id="n"></strong></div><div class="metric"><small>χ²-teststørrelse</small><strong id="chi"></strong></div><div class="metric"><small>Frihedsgrader</small><strong id="df"></strong></div><div class="metric"><small>p-værdi</small><strong id="p"></strong></div></div><div class="inline"><span id="conclusion" class="pill"></span><span id="comparison" class="sub"></span></div><h3>Observerede antal (krydstabel)</h3><div id="observed" class="tablewrap"></div><h3 id="barHeading">Overlevelsesprocent i hver klasse</h3><div id="bars" class="bars"></div><details><summary>Vis forventede antal og mellemregninger</summary><div class="sub" style="margin-top:12px">Forventet antal for hver celle = (rækkesum × kolonnesum) / samlet antal.</div><div id="expected" class="tablewrap"></div><p class="sub">Teststørrelse: χ² = Σ (observeret − forventet)² / forventet.<br>Frihedsgrader: (antal rækker − 1) × (antal kolonner − 1).</p><div id="math" class="sub"></div></details></div></section>
+<section class="card"><h2>4. Fortolkning</h2><p id="interpret" class="sub">Fortolkningen vises, når beregningen er klar.</p><div class="note"><span id="hypotheses"><strong>H₀:</strong> Overlevelse og rejseklasse er uafhængige.<br><strong>H₁:</strong> Overlevelse og rejseklasse hænger sammen.</span></div><p class="footer">En statistisk sammenhæng betyder ikke nødvendigvis årsagssammenhæng. χ²-testen forudsætter bl.a. uafhængige observationer og tilstrækkeligt store forventede celletal.</p></section>
+<p class="footer">Oplysning: Excel-filer indlæses med SheetJS via CDN (kræver internet); CSV fungerer uden eksterne biblioteker. Filer uploades ikke til en server. Data fra den historiske Titanic-passagerliste kan være ufuldstændige.</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(()=>{'use strict';const $=id=>document.getElementById(id);let columns=[],rows=[],mode='class';const fmt=(x,d=2)=>Number(x).toLocaleString('da-DK',{maximumFractionDigits:d,minimumFractionDigits:d});
+function csv(text){text=text.replace(/^\ufeff/,'');const first=text.split(/\r?\n/).find(x=>x.trim())||'';const count=s=>(first.match(new RegExp(s==='\t'?'\\t':s==='|'?'\\|':s===';'?';':',','g'))||[]).length;const sep=[';',',','\t'].sort((a,b)=>count(b)-count(a))[0];let output=[],row=[],field='',quoted=false;for(let i=0;i<text.length;i++){let c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++}else quoted=!quoted}else if(c===sep&&!quoted){row.push(field);field=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(s=>s.trim()))output.push(row);row=[];field=''}else field+=c}row.push(field);if(row.some(s=>s.trim()))output.push(row);return output}
+function number(v){if(typeof v==='number')return Number.isFinite(v)?v:NaN;let x=String(v??'').trim().replace(/\s/g,'');if(!x)return NaN;const comma=x.lastIndexOf(','),dot=x.lastIndexOf('.');if(comma>=0&&dot>=0)x=comma>dot?x.replace(/\./g,'').replace(',','.'):x.replace(/,/g,'');else if(comma>=0)x=x.replace(',','.');return /^[-+]?\d*\.?\d+(?:e[-+]?\d+)?$/i.test(x)?Number(x):NaN}
+function load(table,label){if(table.length<2)throw Error('Filen har ingen datarækker.');columns=table[0].map((v,i)=>String(v??'').trim()||'Kolonne '+(i+1));rows=table.slice(1).filter(r=>r.some(v=>String(v??'').trim()));if(columns.length<2||!rows.length)throw Error('Filen skal have kolonner og observationer.');const find=(rx,fallback)=>{let i=columns.findIndex(s=>rx.test(s.trim().toLowerCase()));return i===-1?fallback:i};const suggested={survcol:find(/^survived$|overlev|survival/,1),classcol:find(/^pclass$|^class$|klasse/,0),agecol:find(/^age$|alder/,columns.length>4?4:0)};for(const id of Object.keys(suggested)){const sel=$(id);sel.replaceChildren();columns.forEach((h,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=h;sel.append(opt)});sel.value=String(Math.min(Math.max(suggested[id],0),columns.length-1))} $('columnMapping').style.display='block';$('status').classList.remove('error');$('status').textContent=`${label}: ${fmt(rows.length,0)} datarækker indlæst.`;render()}
+$('file').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{let table;if(/\.xlsx?$/i.test(f.name)){if(!window.XLSX)throw Error('Excel-biblioteket kunne ikke indlæses. Gem eventuelt filen som CSV.');const w=XLSX.read(await f.arrayBuffer(),{type:'array'});table=XLSX.utils.sheet_to_json(w.Sheets[w.SheetNames[0]],{header:1,defval:''})}else table=csv(await f.text());load(table,f.name)}catch(error){$('status').classList.add('error');$('status').textContent='Kunne ikke læse filen: '+error.message}});
+$('demo').addEventListener('click',()=>{const t=[['pclass','survived','age']];const groups=[[1,[70,110,80],[25,44,65]],[2,[120,75,45],[20,34,51]],[3,[280,100,45],[15,28,47]]];for(const [klass,counts,ages] of groups){for(let i=0;i<counts.length;i++)for(let j=0;j<counts[i];j++)t.push([klass,Number((j+klass+i)%((i+2)*3)===0),ages[i]+(j%7)-3])}load(t,'Illustrative, syntetiske eksempeldata (ikke historiske passagertal)')});
+for(const b of document.querySelectorAll('#choices button'))b.addEventListener('click',()=>{mode=b.dataset.mode;document.querySelectorAll('#choices button').forEach(x=>x.classList.toggle('active',x===b));render()});$('alpha').addEventListener('change',render);for(const id of ['survcol','classcol','agecol'])$(id).addEventListener('change',render);
+// Lanczos log-gamma and regularized upper incomplete gamma Q(a,x) for chi-square survival.
+function logGamma(z){const p=[.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-.13857109526572012,9.984369578019572e-6,1.5056327351493116e-7];if(z<.5)return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-logGamma(1-z);z--;let x=p[0];for(let i=1;i<p.length;i++)x+=p[i]/(z+i);let t=z+7.5;return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x)}
+function gammaQ(a,x){if(x<=0)return 1;const eps=1e-13,it=10000,tiny=1e-300,base=a*Math.log(x)-x-logGamma(a);if(x<a+1){let ap=a,sum=1/a,del=sum;for(let n=1;n<=it;n++){ap++;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*eps)break}return Math.max(0,Math.min(1,1-sum*Math.exp(base)))}let b=x+1-a,c=1/tiny,d=1/(Math.abs(b)<tiny?tiny:b),h=d;for(let i=1;i<=it;i++){let an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<tiny)d=tiny;c=b+an/c;if(Math.abs(c)<tiny)c=tiny;d=1/d;let delta=d*c;h*=delta;if(Math.abs(delta-1)<eps)break}return Math.max(0,Math.min(1,Math.exp(base)*h))}
+function tableHTML(m,rowLabels,colLabels,decimals=0){
+ let totalCols=colLabels.map((_,j)=>m.reduce((sum,row)=>sum+row[j],0));let n=totalCols.reduce((a,b)=>a+b,0);
+ let out='<table><thead><tr><th>Gruppe</th>'+colLabels.map(x=>`<th>${x}</th>`).join('')+'<th>I alt</th></tr></thead><tbody>';
+ m.forEach((r,i)=>out+=`<tr><th>${rowLabels[i]}</th>`+r.map(x=>`<td>${fmt(x,decimals)}</td>`).join('')+`<td>${fmt(r.reduce((a,b)=>a+b,0),decimals)}</td></tr>`);
+ return out+'</tbody><tfoot><tr><td>I alt</td>'+totalCols.map(x=>`<td>${fmt(x,decimals)}</td>`).join('')+`<td>${fmt(n,decimals)}</td></tr></tfoot></table>`;
+}
+function render(){
+ if(!rows.length)return;
+ const survCol=+$('survcol').value,classCol=+$('classcol').value,ageCol=+$('agecol').value;
+ let classes=['1. klasse','2. klasse','3. klasse'];
+ let isAge=mode==='age';
+ let labels=isAge?['0–19 år','20–39 år','40+ år']:classes;
+ let columnLabels=isAge?classes:['Overlevede (1)','Omkom (0)'];
+ let matrix=Array.from({length:3},()=>Array(columnLabels.length).fill(0)),dropped=0;
+ for(const row of rows){
+  const cl=number(row[classCol]),clIndex=[1,2,3].indexOf(cl);
+  if(clIndex<0){dropped++;continue}
+  if(isAge){
+   const a=number(row[ageCol]);
+   if(!Number.isFinite(a)||a<0||a>120){dropped++;continue}
+   const ageIndex=a<20?0:a<40?1:2;
+   matrix[ageIndex][clIndex]++;
+  } else {
+   const sv=number(row[survCol]);
+   if(sv!==0&&sv!==1){dropped++;continue}
+   matrix[clIndex][sv===1?0:1]++;
+  }
+ }
+ const activeRows=matrix.map((v,i)=>({v,label:labels[i]})).filter(x=>x.v.reduce((a,b)=>a+b,0)>0);
+ const activeCols=columnLabels.map((label,j)=>({label,j})).filter(x=>matrix.some(r=>r[x.j]>0));
+ const m=activeRows.map(x=>activeCols.map(c=>x.v[c.j]));
+ const rowNames=activeRows.map(x=>x.label), colNames=activeCols.map(x=>x.label);
+ const n=m.flat().reduce((a,b)=>a+b,0);
+ $('empty').classList.add('hide');$('results').classList.remove('hide');$('interpret').textContent='';
+ $('barHeading').textContent=isAge?'Aldersfordeling inden for hver rejseklasse':'Overlevelsesprocent i hver rejseklasse';
+ $('hypotheses').innerHTML=isAge?'<strong>H₀:</strong> Aldersgruppe og rejseklasse er uafhængige.<br><strong>H₁:</strong> Aldersgruppe og rejseklasse hænger sammen.':'<strong>H₀:</strong> Overlevelse og rejseklasse er uafhængige.<br><strong>H₁:</strong> Overlevelse og rejseklasse hænger sammen.';
+ if(n===0||activeRows.length<2||activeCols.length<2){
+  $('warnings').classList.remove('hide');$('warnings').textContent='For få gyldige observationer eller kategorier. Kontrollér kolonnerne.';
+  for(const id of ['n','chi','df','p'])$(id).textContent='–';
+  $('conclusion').textContent='Kan ikke beregnes';$('comparison').textContent='';$('observed').innerHTML='';$('expected').innerHTML='';$('bars').replaceChildren();$('math').textContent='';return;
+ }
+ const rowTotals=m.map(r=>r.reduce((a,b)=>a+b,0)),colTotals=activeCols.map((_,j)=>m.reduce((a,r)=>a+r[j],0));
+ const expected=m.map((r,i)=>r.map((_,j)=>rowTotals[i]*colTotals[j]/n));
+ const contributions=m.map((r,i)=>r.map((obs,j)=>(obs-expected[i][j])**2/expected[i][j]));
+ const chi=contributions.flat().reduce((a,b)=>a+b,0),df=(activeRows.length-1)*(activeCols.length-1);
+ const p=gammaQ(df/2,chi/2),alpha=+$('alpha').value,significant=p<alpha;
+ $('n').textContent=fmt(n,0);$('chi').textContent=fmt(chi,3);$('df').textContent=df;
+ $('p').textContent=p<.0001?'< 0,0001':fmt(p,4);
+ const badge=$('conclusion');badge.textContent=significant?'Afvis H₀':'Afvis ikke H₀';badge.className='pill '+(significant?'positive':'negative');
+ $('comparison').textContent=`p ${significant?'<':'≥'} α (${fmt(alpha*100,0)} %)`;
+ $('observed').innerHTML=tableHTML(m,rowNames,colNames);
+ $('expected').innerHTML=tableHTML(expected,rowNames,colNames,2);
+ $('bars').replaceChildren();
+ if(!isAge){
+  m.forEach((r,i)=>{const rate=100*r[colNames.indexOf('Overlevede (1)')]/rowTotals[i];
+   let div=document.createElement('div');div.className='barrow';div.innerHTML=`<span>${rowNames[i]}</span><div class="track"><div class="fill" style="width:${rate}%"></div></div><strong>${fmt(rate,1)} %</strong>`;$('bars').append(div)});
+ }else{
+  const colors=['#157b9d','#5aa6ba','#b4d5e0'];
+  const legend=document.createElement('div');legend.className='sub';legend.textContent='Blå nuancer: 0–19 år · 20–39 år · 40+ år. Procenterne beregnes inden for hver klasse.';$('bars').append(legend);
+  activeCols.forEach((c,j)=>{
+   const div=document.createElement('div');div.style.margin='5px 0 10px';
+   const label=document.createElement('strong');label.textContent=c.label;label.style.fontSize='13px';div.append(label);
+   const bar=document.createElement('div');bar.style.cssText='display:flex;width:100%;height:26px;border-radius:6px;overflow:hidden;margin-top:5px;background:#e8eef2';
+   const count=colTotals[j];
+   m.forEach((r,i)=>{const pct=100*r[j]/count;const cell=document.createElement('div');cell.style.width=pct+'%';cell.style.background=colors[i%colors.length];cell.title=`${rowNames[i]}: ${fmt(pct,1)} % (${r[j]} personer)`;bar.append(cell)});div.append(bar);
+   const desc=document.createElement('div');desc.className='small sub';desc.style.marginTop='3px';desc.textContent=m.map((r,i)=>`${rowNames[i]}: ${fmt(100*r[j]/count,1)} %`).join(' · ');div.append(desc);$('bars').append(div)
+  });
+ }
+ const minExpected=Math.min(...expected.flat()),small=expected.flat().filter(x=>x<5).length,warnings=[];
+ if(dropped)warnings.push(`${fmt(dropped,0)} observationer er udeladt på grund af manglende eller ugyldige oplysninger.`);
+ if(small)warnings.push(`${small} af ${expected.flat().length} forventede celletal er under 5. χ²-testens approksimation kan være upålidelig.`);
+ $('warnings').classList.toggle('hide',warnings.length===0);$('warnings').textContent=warnings.join(' ');
+ const pair=isAge?'aldersgruppe og rejseklasse':'overlevelse og rejseklasse';
+ $('interpret').textContent=(significant?`P-værdien er lavere end signifikansniveauet på ${fmt(alpha*100,0)} %. Vi afviser derfor H₀ og finder statistisk evidens for en sammenhæng mellem ${pair}.`:`P-værdien er ikke lavere end signifikansniveauet på ${fmt(alpha*100,0)} %. Vi kan derfor ikke afvise H₀ om uafhængighed mellem ${pair}. Det beviser ikke, at variablene er uafhængige.`)+(small?' Bemærk advarslen om små forventede celletal.':'');
+ $('math').innerHTML=`<p>χ² = ${fmt(chi,5)}</p><p>Frihedsgrader = (${activeRows.length} − 1) × (${activeCols.length} − 1) = ${df}</p><p>p-værdi = ${p<.000001?p.toExponential(5):fmt(p,6)}</p><p>Mindste forventede celletal: ${fmt(minExpected,2)}</p><p>Hver celles bidrag er (observeret − forventet)² / forventet. Summen er χ².</p>`;
+}
+
+})();
+</script></body></html>
